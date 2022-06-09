@@ -42,9 +42,7 @@ EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 # Your stuff...
 # ------------------------------------------------------------------------------
 
-INSTALLED_APPS += [  # noqa F405
-    "test_without_migrations",
-]
+MIDDLEWARE.remove("care.audit_log.middleware.AuditLogMiddleware")
 
 MIDDLEWARE.remove("care.audit_log.middleware.AuditLogMiddleware")
 
