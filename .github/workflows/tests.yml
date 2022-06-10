@@ -34,18 +34,11 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: '3.8'
+          cache: 'pip'
       - name: Install system packages
         run: |
           sudo apt-get update
           sudo apt-get install binutils libproj-dev gdal-bin -y
-      - name: Cache pip
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-            ${{ runner.os }}-
       - name: Install CI dependencies
         run: |
           pip install --upgrade pip
@@ -54,7 +47,7 @@ jobs:
         run: celery -A config.celery_app worker -B --loglevel=INFO --detach
       - name: Run Tests with coverage
         run: |
-          coverage run manage.py test --config=config.settings.test --noinput --keepdb
+          coverage run manage.py test --settings=config.settings.test --noinput --keepdb
           coverage report
 
       - name: Upload coverage report
