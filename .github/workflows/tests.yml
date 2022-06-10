@@ -34,6 +34,10 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: '3.8'
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install binutils libproj-dev gdal-bin -y
       - name: Cache pip
         uses: actions/cache@v2
         with:
