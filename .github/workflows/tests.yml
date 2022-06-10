@@ -47,7 +47,7 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements/local.txt
       - name: Run celery worker for tests
-        run: celery -A config.celery_app worker -b --loglevel=INFO --detach
+        run: celery -A config.celery_app worker -B --loglevel=INFO --detach
       - name: Run Tests with coverage
         run: |
           coverage run manage.py test --config=config.settings.test --noinput --keepdb
