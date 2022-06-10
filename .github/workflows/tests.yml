@@ -11,15 +11,47 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgis/postgis:latest
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+      localstack:
+        image: localstack/localstack:latest
+        env:
+          AWS_DEFAULT_REGION: ap-south-1
+          EDGE_PORT: 4566
+          SERVICES: s3
+        ports:
+          - 4566:4566
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+      - name: Install CI dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements/local.txt
+      - name: Run celery worker for tests
+        run: celery -A junction worker -l -b info --detach
       - name: Run Tests with coverage
         run: |
-          docker network inspect care >/dev/null 2>&1 || \
-            docker network create care 
-          docker-compose -f docker-compose.local.yaml up -d
-          docker exec care bash -c "coverage run manage.py test --settings=config.settings.test --keepdb"
-          docker exec care bash -c "coverage report"
+          coverage run manage.py test --config=config.settings.test --noinput --keepdb
+          coverage report
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v2
