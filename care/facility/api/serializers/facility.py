@@ -139,7 +139,6 @@ class FacilityImageUploadSerializer(serializers.ModelSerializer):
             Key=f"cover_images/{facility.external_id}_cover.{image_extension}",
             Body=image.file,
         )
-        print(upload_response['ResponseMetadata']['HTTPHeaders']['location'])
         facility.cover_image_url = f"cover_images/{facility.external_id}_cover.{image_extension}"
         facility.save()
         return facility
